@@ -1,0 +1,17 @@
+{
+    "name": "xiyi",
+    "version": "0.1.0",
+    "devDependencies": {
+        "grunt": "*",
+        "grunt-cmd-transport": "*",
+        "grunt-cmd-concat": "*",
+        "grunt-contrib-less": "*",
+        "grunt-contrib-watch": "*",
+        "grunt-contrib-copy": "*",
+        "grunt-contrib-uglify": "*",
+        "grunt-contrib-concat": "*",
+        "grunt-contrib-clean": "*",
+        "grunt-css": "*",
+        "grunt-css-combo": "*"
+    }
+}

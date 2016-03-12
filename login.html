@@ -1,0 +1,133 @@
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>用户登录</title>
+<link rel="stylesheet" href="css/bootstrap.min.css">
+</head>
+
+<style>
+*{font-family:"Helvetica Neue",Helvetica,Microsoft Yahei,Hiragino Sans GB,WenQuanYi Micro Hei,sans-serif; color:#666;}
+body{background:url(images/tile.png)}
+.login-body{width:364px; padding-top:1px; text-align:center; padding-bottom: 10px; background:#fff;margin:80px auto;border-radius:26px;}
+.login-body p{ position: relative;}
+.login-body .form-control{ width: 190px; display: inline-block;}
+.login-body .glyphicon{ top: 0; right: 64px; display: none;}
+.has-error .glyphicon{ display: block;}
+.login-body .glyphicon.yzm{ right: 138px; width: 34px;}
+input{width:190px; transition: border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s; background-color: #fff; background-image: none; border: 1px solid #ccc;  border-radius: 4px; box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset; color: #555; font-size: 14px; height: 34px; line-height: 1.42857; padding: 6px 12px;}
+input:focus{border-color: #66afe9; box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 8px rgba(102, 175, 233, 0.6); outline: 0 none;}
+.login-body .form-control.yzm{ width: 104px;}
+</style>
+
+<body>
+<div class="login-body">
+<h3>账号登录</h3>
+<p data-formtype="uname">
+	<label>账&nbsp;&nbsp;&nbsp;&nbsp;号：</label>
+	<input class="form-control" placeholder="请输入账号" type="text" id="uname" name="uname" />
+	<span class="glyphicon glyphicon-remove form-control-feedback"></span>
+</p>
+<p data-formtype="pw">
+	<label>密&nbsp;&nbsp;&nbsp;&nbsp;码：</label>
+	<input class="form-control" placeholder="请输入密码" type="password" id="pw" name="pw" />
+	<span class="glyphicon glyphicon-remove form-control-feedback"></span>
+</p>
+<p data-formtype="yzm">
+	<label>验证码：</label>
+	<input class="yzm form-control" placeholder="输入验证码" type="password" id="yzm" name="yzm" />
+	<span class="glyphicon glyphicon-remove form-control-feedback yzm"></span>
+	<a class="js-regetyzm" href="javascript:;" title="注意区分大小写">
+		<img width="80" height="34" src="api/getCaptcha.php" alt="">
+	</a>
+	
+</p>
+<p>
+	<a class="btn btn-primary" id="checkbut" href="javascript:;">登&nbsp;&nbsp;录</a>
+</p>
+</div>
+
+
+<script src="http://j.ziminy.com/js/md5.js"></script>
+<script src="http://j.ziminy.com/js/jquery-1.10.2.min.js"></script>
+
+<script type="text/javascript">
+$(function (){
+	var $uname = $('#uname');
+	var $yzm = $('#yzm');
+	var $checkbut = $('#checkbut');
+
+	$uname.focus();
+
+	$yzm.keyup(function(event) {
+		if(event.which == 13)
+			$checkbut.trigger('click');
+	});
+
+	var doLogin = false;
+
+	$('.js-regetyzm').click(function(event) {
+		$(this).find('img').attr('src', 'api/getCaptcha.php?t=' + new Date().getTime());
+	});
+
+	$checkbut.click(function (){
+		var btnStr = $(this).html();
+		if(!doLogin){
+			doLogin = true;
+			$(this).html(btnStr + '…');
+		}else{
+			return;
+		}
+
+		$('.login-body p').removeClass('has-error');
+		var pw = $.trim($("#pw").val());
+		var uname = $.trim($uname.val());
+		var yzm = $.trim($yzm.val());
+
+		if(uname === ''){
+			$('[data-formtype="uname"]').addClass('has-error').find('input').focus();
+			doLogin = false;
+			$(this).html(btnStr);
+			return;
+		}
+		if(pw === ''){
+			$('[data-formtype="pw"]').addClass('has-error').find('input').focus();
+			doLogin = false;
+			$(this).html(btnStr);
+			return;
+		}
+		if(yzm === ''){
+			$('[data-formtype="yzm"]').addClass('has-error').find('input').focus();
+			doLogin = false;
+			$(this).html(btnStr);
+			return;
+		}
+
+		checkYZM(yzm, function (){
+			$.post("api/login.php", {password: hex_md5(pw), username: uname}, function(result){
+				if(result == '0'){
+					$('[data-formtype="uname"]').add($('[data-formtype="pw"]')).addClass('has-error');
+				}else{
+					window.location.href = 'index.php';
+				}
+				doLogin = false;
+				$(this).html(btnStr);
+			});
+		});
+	});
+
+	function checkYZM(yzm, callback){
+		$.post("api/checkCaptcha.php", {captcha: yzm}, function(result){
+			if(result == 0){
+				$('[data-formtype="yzm"]').addClass('has-error').find('input').focus();
+				doLogin = false;
+				$checkbut.html('登&nbsp;&nbsp;录');
+			}else{
+				callback();
+			}
+		});
+	}
+});
+</script>
+</body>
+</html>
